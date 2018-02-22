@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import MealPlanItem from './MealPlanItem';
 import _ from 'lodash';
 
 class MealPlan extends Component {
@@ -9,7 +10,7 @@ class MealPlan extends Component {
   };
 
   renderMeals() {
-    return _.map(this.state.meals, meal => <li>{meal}</li>);
+    return _.map(this.state.meals, meal => <MealPlanItem meal={meal} />);
   }
 
   componentWillMount() {
