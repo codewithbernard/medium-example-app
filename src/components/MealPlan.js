@@ -6,11 +6,18 @@ class MealPlan extends Component {
   state = {
     meal: '',
     meals: [],
-    showAddMealMessage: false
+    showMessage: ''
   };
 
+  removeMeal(mealToRemove) {
+    const meals = this.state.meals.filter(meal => meal !== mealToRemove);
+    this.setState({
+      meals: meals
+    });
+  }
+
   renderMeals() {
-    return _.map(this.state.meals, meal => <MealPlanItem meal={meal} />);
+    return _.map(this.state.meals, meal => <MealPlanItem handleDelete={() => this.removeMeal(meal)} meal={meal} />);
   }
 
   componentWillMount() {
@@ -18,19 +25,25 @@ class MealPlan extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.meals.length < this.state.meals.length) {
-      this.setState({showAddMealMessage: true});
-      setTimeout(() => this.setState({showAddMealMessage: false}), 1000);
-    }
+    if (prevState.meals.length < this.state.meals.length) this.showMessage('New meal added');
   }
 
   handleSubmit = (event) => {
     event.preventDefault()
     const meal = this.state.meal;
-    this.setState({
-      meals: [...this.state.meals, meal],
-      meal: ""
-    });
+    if (this.state.meals.indexOf(meal) === -1) {
+      this.setState({
+        meals: [...this.state.meals, meal],
+        meal: ""
+      });
+    } else {
+      this.showMessage(`${meal} is already on the list`);
+    }
+  }
+
+  showMessage = (message) => {
+    this.setState({showMessage: message});
+    setTimeout(() => this.setState({showMessage: ''}), 1000);
   }
 
   render() {
@@ -44,9 +57,10 @@ class MealPlan extends Component {
             type="text"
           />
           <button
-            type="submit">Add meal</button>
+            type="submit"
+            disabled={this.state.meal === ""}>Add meal</button>
         </form>
-        {this.state.showAddMealMessage ? <p>New meal added</p> : null}
+        {this.state.showMessage || null}
         <ul>
           {this.renderMeals()}
         </ul>
