@@ -1,67 +1,113 @@
-import React, { Component } from 'react';
-import MealPlanItem from './MealPlanItem';
-import _ from 'lodash';
+import React, { Component } from "react";
+import MealPlanItem from "./MealPlanItem";
+import _ from "lodash";
 
 class MealPlan extends Component {
   state = {
-    meal: '',
-    meals: [],
-    showMessage: ''
+    meal: "",
+    meals: {},
+    showMessage: ""
   };
 
   removeMeal(mealToRemove) {
-    const meals = this.state.meals.filter(meal => meal !== mealToRemove);
+    const meals = this.state.meals;
+    delete meals[mealToRemove];
     this.setState({
       meals: meals
     });
   }
 
-  renderMeals() {
-    return _.map(this.state.meals, meal => <MealPlanItem handleDelete={() => this.removeMeal(meal)} meal={meal} />);
-  }
-
-  componentWillMount() {
-    this.setState({meals: ["Eggs with bacon", "Spaghetti carbonara", "Oatmeal"]});
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.meals.length < this.state.meals.length) this.showMessage('New meal added');
-  }
-
-  handleSubmit = (event) => {
-    event.preventDefault()
-    const meal = this.state.meal;
-    if (this.state.meals.indexOf(meal) === -1) {
+  completeMeal(mealToComplete) {
+    const meals = this.state.meals;
+    if (!meals[mealToComplete].completed) {
+      meals[mealToComplete].completed = true;
       this.setState({
-        meals: [...this.state.meals, meal],
-        meal: ""
+        meals: meals
       });
-    } else {
-      this.showMessage(`${meal} is already on the list`);
     }
   }
 
-  showMessage = (message) => {
-    this.setState({showMessage: message});
-    setTimeout(() => this.setState({showMessage: ''}), 1000);
+  renderMeals() {
+    return _.map(this.state.meals, (value, key) => (
+      <MealPlanItem
+        handleMealClick={() => this.completeMeal(key)}
+        handleDelete={() => this.removeMeal(key)}
+        title={key}
+        completed={value.completed}
+      />
+    ));
   }
 
+  componentWillMount() {
+    this.setState({
+      meals: {
+        "Spaghetti carboanra": {
+          completed: false
+        },
+        Risotto: {
+          completed: false
+        },
+        Oatmeal: {
+          completed: false
+        }
+      }
+    });
+  }
+
+  handleSubmit = event => {
+    event.preventDefault();
+    const { meals, meal } = this.state;
+    if (!meals[meal]) {
+      meals[meal] = { completed: false };
+      this.setState({
+        meals: meals,
+        meal: ""
+      });
+      this.showMessage("New meal added");
+    } else {
+      this.showMessage(`${meal} is already on the list`);
+    }
+  };
+
+  showMessage = message => {
+    this.setState({ showMessage: message });
+    setTimeout(() => this.setState({ showMessage: "" }), 1000);
+  };
+
   render() {
-    return(
-      <div>
-        <h2>Today you should eat this</h2>
-        <form onSubmit={e => this.handleSubmit(e)}>
-          <input
-            onChange={e => this.setState({meal: e.target.value})}
-            value={this.state.meal}
-            type="text"
-          />
-          <button
-            type="submit"
-            disabled={this.state.meal === ""}>Add meal</button>
+    return (
+      <div className="row">
+        <form className="col s6 offset-s3" onSubmit={e => this.handleSubmit(e)}>
+          <div className="row">
+            <div className="col s8 input-field">
+              <input
+                id="meal"
+                onChange={e =>
+                  this.setState({
+                    meal: e.target.value
+                  })
+                }
+                value={this.state.meal}
+                type="text"
+              />
+              <label for="meal">Meal</label>
+            </div>
+            <div className="col s4">
+              <button
+                style={{ marginTop: 15 }}
+                className="btn"
+                type="submit"
+                disabled={this.state.meal === ""}
+              >
+                Add
+              </button>
+            </div>
+          </div>
         </form>
-        {this.state.showMessage || null}
-        <ul>
+        <ul className=" col s8 offset-s2 collection with-header">
+          <li className="collection-header">
+            <h4>Don't remember to eat</h4>
+          </li>
           {this.renderMeals()}
         </ul>
       </div>

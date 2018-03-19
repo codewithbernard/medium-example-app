@@ -1,7 +1,15 @@
-import React from 'react';
+import React from "react";
 
 const Header = () => {
-  return <h2>This app will tel you if you should work today</h2>;
-}
+  return (
+    <nav>
+      <div className="nav-wrapper">
+        <a href="#" class="brand-logo center">
+          To work or not to work
+        </a>
+      </div>
+    </nav>
+  );
+};
 
 export default Header;
